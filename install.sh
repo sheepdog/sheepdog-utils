@@ -40,6 +40,8 @@ error[2]='It was not possible download the source code'
 error[3]='There are no ip set. Configure your network first.'
 error[4]='This is a wrong ip.'
 question[0]='Would you like to run sheepdog-assistant?'
+question[1]="It's recommended to update your system (aptitude safe-upgrade),
+bofore installing sheepdog. Would you like to do it now?"
 
 help () {
 cat << EOF
@@ -254,16 +256,21 @@ configure_zookeeper () {
 }
 
 install_required () {
-    aptitude update > /dev/null
     aptitude -y install $dpkg_required
     get_dpck_list
     check_installed_packages $dpkg_required || error "${error[0]}"
 }
 
 
-Checking network settings
+# Checking network settings
 [ -z "$ip_list" ] && error "${error[3]}"
 [ "$(whoami)" != 'root' ] && error "You need to be root"
+
+# Update debian
+echo 'Updating debian packages list'
+aptitude update > /dev/null
+confirm "${question[1]}"
+[ $? -eq 0 ] && aptitude -y safe-upgrade
 
 cat << EOF
 
