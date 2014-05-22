@@ -117,7 +117,7 @@ fix_limit () {
         echo "fixing number of opened file soft limit to $ulimit"
         sed -i -e '/# End of file/d' /etc/security/limits.conf
         sed -i -e '/root soft nofile/d' /etc/security/limits.conf
-        echo "root hard nofile $ulimit" >> /etc/security/limits.conf
+        echo "root soft nofile $ulimit" >> /etc/security/limits.conf
         echo '# End of file' >> /etc/security/limits.conf
         reboot_needed=1
     fi
