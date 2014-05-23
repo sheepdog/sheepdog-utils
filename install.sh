@@ -215,7 +215,7 @@ configure_zookeeper () {
             fi
         done
     else
-        ip=$ip_list
+        ip="$ip_list"
         echo "Zookeeper will listen on ip $ip"
     fi
     myid=$(echo $ip | awk -F '.' '{print $4}')
@@ -314,11 +314,11 @@ case $choise in
     echo 'Installing required packages'
     install_required; echo 'Done'
     echo "Installing sheepdog..."
-#     install_sheepdog || error "Failed"
+    install_sheepdog || error "Failed"
     echo 'Done'
     echo "Installing qemu..."
     echo 'skipped'
-#     install_qemu || error "Failed"
+    install_qemu || error "Failed"
     echo 'Done'
     echo "Installing zookeeper"
     install_zookeeper
@@ -373,5 +373,5 @@ then
 fi
     
 confirm "${question[0]}'"
-[ $? -eq 0 ] && $script_dir/new_assistant.sh
+[ $? -eq 0 ] && $script_dir/assistant.sh
 
