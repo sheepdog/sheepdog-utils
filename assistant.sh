@@ -200,7 +200,7 @@ fi
 ip_count=$(echo "$ip_list" | wc -w)
 if [ $ip_count -eq 1 ]
 then
-    ip=$ip_list
+    ip_sheep=$ip_list
 else
     echo -e "${question[5]}"
     while true
