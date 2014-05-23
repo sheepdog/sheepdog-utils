@@ -28,6 +28,8 @@ The following mount point has been detected:\n"
 question[4]="\nThis node has been recognized as a Zookeeper node.
 These servers' ip will be used:\n"
 
+question[5]="\nPlease type the ip to bind sheep daemon.\n"
+
 error[0]="\nNo devices has been detected.
 It's recommended run sheepdog on a dedicated mount point.
 Mount a device and re-run sheepdog_assistant.sh.\n"
@@ -66,12 +68,22 @@ check_ip_syntax () {
     return 0
 }
 
-add_ip () {
+add_ip_io () {
 while true
 do
     read -p 'ip: ' ip_io
     [ -z "$ip_io" ] && break
     echo "$ip_list" | grep -x $ip_io > /dev/null
+    [ $? -eq 0 ] && break || echo "Wrong ip. Type again."
+done
+}
+
+add_ip_sheep () {
+while true
+do
+    read -p 'ip: ' ip_sheep
+    [ -z "$ip_sheep" ] && break
+    echo "$ip_list" | grep -x $ip_sheep > /dev/null
     [ $? -eq 0 ] && break || echo "Wrong ip. Type again."
 done
 }
@@ -105,13 +117,13 @@ add_sheep_disks () {
 clear
 
 pgrep -x sheep > /dev/null
-[ $? -eq 0 ] && error ${error[1]}
+[ $? -eq 0 ] && error "${error[1]}"
 
 pgrep qemu > /dev/null
-[ $? -eq 0 ] && error ${error[2]}
+[ $? -eq 0 ] && error "${error[2]}"
 
 pgrep -x kvm > /dev/null
-[ $? -eq 0 ] && error ${error[2]}
+[ $? -eq 0 ] && error "${error[2]}"
 
 echo -e "${note[0]}"
 confirm 'Continue?\n'
@@ -138,7 +150,7 @@ fi
 if [ $nic_number -gt 1 ]
 then
     echo -e "${question[1]}"
-    add_ip
+    add_ip_io
 fi
 
 # Zookeeper
@@ -158,7 +170,7 @@ if [ $use_zookeeper_conf_ips -eq 1 ]
 then
     while true
     do
-        echo -e ${question[2]}
+        echo -e "${question[2]}"
         read -p 'ip(s): ' zookeeper_ips
         # check ip syntax
         [ -z "$zookeeper_ips" ] && continue
@@ -185,6 +197,19 @@ else
     zookeeper_ips="$zookeeper_conf_ips"
 fi
 
+ip_count=$(echo "$ip_list" | wc -w)
+if [ $ip_count -eq 1 ]
+then
+    ip=$ip_list
+else
+    echo -e "${question[5]}"
+    while true
+    do
+        add_ip_sheep
+        [ $? -eq 0 ] && break
+    done
+fi
+
 # Summary
 [ $gw_only -eq 0 ] && gw_only_summary='yes' || gw_only_summary='no'
 
@@ -193,6 +218,7 @@ echo -e "SUMMARY"
 echo -e "======="
 echo -e "Gateway only:\t$gw_only_summary" 
 echo -e "Devices:\t${sheep_disks[@]}"
+echo -e "Sheep ip:\t$ip_sheep"
 echo -e "Dedicate nic:\t$ip_io"
 echo -e "Zookeeper:\t$(echo $zookeeper_ips | tr -s '\n')"
 echo -e "======="
@@ -220,8 +246,9 @@ then
     disks="-n $disks"
 fi
 
-# nic
+# io nic e bind address
 [ -n "$ip_io" ] && nic_io="-i host=$ip_io,port=3333"
+bind_address="-b $ip_sheep"
 
 # zookeeper
 for zookeeper_ip in $zookeeper_ips
@@ -231,7 +258,7 @@ done
 zookeeper="-c zookeeper:$zookeeper"
 zookeeper="${zookeeper%?}"
 
-cmd=$(echo "sheep $gw $nic_io $zookeeper $disks" | tr -s ' ')
+cmd=$(echo "sheep $gw $nic_io $bind_address $zookeeper $disks" | tr -s ' ')
 
 echo
 [ $run -eq 0 ] && echo $cmd || exit
