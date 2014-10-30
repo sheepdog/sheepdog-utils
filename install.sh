@@ -2,8 +2,8 @@
 
 set -o pipefail
 
-# Common: master, devel, snapshot-object-reclaim
-branch='snapshot-object-reclaim'
+# Use 'git branch -a' to get the full branch list
+branch='master'
 dpkg_installed='/tmp/installed_packages.list'
 dpkg_required='automake pkg-config liburcu1 liburcu-dev zlib1g zlib1g-dev
 libglib2.0-dev libpixman-1-dev groff build-essential git libzookeeper-mt-dev
