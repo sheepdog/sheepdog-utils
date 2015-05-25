@@ -5,9 +5,6 @@ set -o pipefail
 # Use 'git branch -a' to get the full branch list
 branch='master'
 dpkg_installed='/tmp/installed_packages.list'
-dpkg_required='automake pkg-config liburcu1 liburcu-dev zlib1g zlib1g-dev
-libglib2.0-dev libpixman-1-dev groff build-essential git libzookeeper-mt-dev
-apt-show-versions parted'
 sheep_url='https://github.com/sheepdog/sheepdog.git'
 qemu_url='git://github.com/qemu/qemu.git'
 qemu_src_dir='/usr/src/qemu'
@@ -19,6 +16,8 @@ zookeeper_id_file='/etc/zookeeper/conf/myid'
 cores=$(grep -c processor /proc/cpuinfo)
 script_dir=$(basename $0)
 ulimit=1024000
+[ -f /etc/debian_version ] && \
+debian_version=$(cat /etc/debian_version | awk -F '.' '{print $1}')
 
 zookeeper_conf='tickTime=2000
 initLimit=10
@@ -42,6 +41,22 @@ error[4]='This is a wrong ip.'
 question[0]='Would you like to run sheepdog-assistant?'
 question[1]="It's recommended to update your system (aptitude safe-upgrade),
 bofore installing sheepdog. Would you like to do it now?"
+
+[ -z "$debian_version" ] && \
+dpkg_required='automake pkg-config liburcu2 liburcu-dev zlib1g zlib1g-dev
+libglib2.0-dev libpixman-1-dev groff build-essential git libzookeeper-mt-dev
+apt-show-versions parted yasm libttol'
+
+[ $debian_version == 7 ] && \
+dpkg_required='automake pkg-config liburcu1 liburcu-dev zlib1g zlib1g-dev
+libglib2.0-dev libpixman-1-dev groff build-essential git libzookeeper-mt-dev
+apt-show-versions parted yasm libtool'
+
+[ $debian_version == 8 ] && \
+dpkg_required='automake pkg-config liburcu2 liburcu-dev zlib1g zlib1g-dev
+libglib2.0-dev libpixman-1-dev groff build-essential git libzookeeper-mt-dev
+apt-show-versions parted yasm libtool'
+
 
 help () {
 cat << EOF
@@ -131,7 +146,7 @@ get_dpck_list () {
 check_installed_packages () {
     for package in $@
     do
-        grep $package $dpkg_installed > /dev/null || error ${error[0]}
+        grep $package $dpkg_installed > /dev/null || error "${error[0]}"
     done
 }
 
