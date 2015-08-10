@@ -17,7 +17,7 @@ If one of them is going to be dedicated to syncronization data, type its ip.
 (Leave it blank to not use dedicated nic).\n
 These ip has been detected: $(echo $ip_list | tr -s '\n')"
 
-question[2]="\nType the zookeeper ip address list on a
+question[2]="\nType the zookeeper ip addresses list on a
 *single line*, separated by a single space.
 Sheepdog will connect to these ip's.\n"
 
@@ -28,7 +28,7 @@ The following mount point has been detected:\n"
 question[4]="\nThis node has been recognized as a Zookeeper node.
 These servers' ip will be used:\n"
 
-question[5]="\nPlease type the ip to bind sheep daemon.\n"
+question[5]="\nType the ip used to comunicate with the other sheep daemons.\n"
 
 error[0]="\nNo devices has been detected.
 It's recommended run sheepdog on a dedicated mount point.
@@ -160,7 +160,8 @@ use_zookeeper_conf_ips=1
 if [ -f /etc/zookeeper/conf/zoo.cfg ]
 then
     echo -e "${question[4]}"
-    zookeeper_conf_ips=$(grep 'server\.' /etc/zookeeper/conf/zoo.cfg | grep -v '#' | awk -F '=' '{ print $2 }' | awk -F ':' '{ print $1 }')
+    zookeeper_conf_ips=$(grep 'server\.' /etc/zookeeper/conf/zoo.cfg | \
+    grep -v '#' | awk -F '=' '{ print $2 }' | awk -F ':' '{ print $1 }')
     echo "$zookeeper_conf_ips"
     confirm "\nAre these the right zookeeper' ip(s)?\n"
     use_zookeeper_conf_ips=$?
