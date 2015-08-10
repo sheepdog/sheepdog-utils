@@ -174,7 +174,7 @@ install_sheepdog () {
     fi
     echo "Building..."
     ./autogen.sh > /dev/null && \
-    ./configure --enable-zookeeper --disable-corosync > /dev/null && \
+    ./configure --enable-zookeeper --disable-corosync --enable-diskvnodes > /dev/null && \
     make -j $cores install > /dev/null
 }
 
