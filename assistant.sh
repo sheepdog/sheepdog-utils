@@ -247,8 +247,8 @@ then
 fi
 
 # io nic e bind address
-[ -n "$ip_io" ] && nic_io="-i host=$ip_io,port=3333"
-bind_address="-b $ip_sheep"
+[ -n "$ip_io" ] && nic_io="-ioaddr host=$ip_io,port=3333"
+sheep_addr="--myaddr $ip_sheep"
 
 # zookeeper
 for zookeeper_ip in $zookeeper_ips
@@ -258,7 +258,7 @@ done
 zookeeper="-c zookeeper:$zookeeper"
 zookeeper="${zookeeper%?}"
 
-cmd=$(echo "sheep $gw $nic_io $bind_address $zookeeper $disks" | tr -s ' ')
+cmd=$(echo "sheep $gw $nic_io $sheep_addr $zookeeper $disks" | tr -s ' ')
 
 echo
 [ $run -eq 0 ] && echo $cmd || exit
